@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+    ports:
+      - "4000:4000"
+
+  api:
+    build:
+      context: ./api
+    expose:
+      - 8080
+    depends_on:
+      - redis
+      - ptr
+      - mem
+
+  redis:
+    image: redis:latest
+    expose:
+      - 6379
+
+  ptr:
+    build:
+      context: ./ptr
+    expose:
+      - 8080
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    expose:
+      - 27017
+
+  mem:
+    build:
+      context: ./mem
+    expose:
+      - 8080
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: bfpasswd
+    ports:
+      - 5432:5432
